@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/iqbal2604/dear-talk-api.git/internal/repository/model"
 	"github.com/iqbal2604/dear-talk-api.git/pkg/config"
 	"github.com/iqbal2604/dear-talk-api.git/pkg/database"
 	"github.com/iqbal2604/dear-talk-api.git/pkg/logger"
@@ -36,6 +37,12 @@ func main() {
 	if err != nil {
 		log.Fatal("Failed to connect Database", zap.Error(err))
 	}
+
+	// Auto migrate
+	if err := db.AutoMigrate(&model.UserModel{}); err != nil {
+		log.Fatal("Failed to migrate database", zap.Error(err))
+	}
+	log.Info("Database migrated successfully")
 
 	_ = db
 
