@@ -1,6 +1,13 @@
 package main
 
 import (
+	"context"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/iqbal2604/dear-talk-api.git/pkg/config"
 	"github.com/iqbal2604/dear-talk-api.git/pkg/database"
@@ -42,6 +49,38 @@ func main() {
 		})
 	})
 
-	r.Run(":" + cfg.App.Port)
+	//Bungkus gin ke http server
+	srv := &http.Server{
+		Addr:         ":" + cfg.App.Port,
+		Handler:      r,
+		ReadTimeout:  15 * time.Second,
+		WriteTimeout: 15 * time.Second,
+		IdleTimeout:  60 * time.Second,
+	}
+
+	//Jalankan Server di Goroutine
+	go func() {
+		log.Info("Server is running", zap.String("port", cfg.App.Port))
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatal("Failed to start Server")
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	log.Info("Shutting down server...")
+
+	//Beri waktu 10 detik untuk request yang sedang berjalan selesai
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatal("Server forced to Shutdown", zap.Error(err))
+	}
+
+	log.Info("Server exited gratefully")
 
 }

@@ -2,6 +2,7 @@ package config
 
 import (
 	"log"
+	"time"
 
 	"github.com/spf13/viper"
 )
@@ -9,6 +10,7 @@ import (
 type Config struct {
 	App      AppConfig
 	Database DatabaseConfig
+	JWT      JWTConfig
 }
 
 type AppConfig struct {
@@ -26,12 +28,28 @@ type DatabaseConfig struct {
 	SSLMode  string
 }
 
+type JWTConfig struct {
+	Secret        string
+	AccessExpire  time.Duration
+	RefreshExpire time.Duration
+}
+
 func Load() *Config {
 	viper.SetConfigFile(".env")
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
 		log.Printf("Warning: .env file not found: %v", err)
+	}
+
+	accessExpire, err := time.ParseDuration(viper.GetString("JWT_ACCESS_EXPIRE"))
+	if err != nil {
+		accessExpire = 15 * time.Minute
+	}
+
+	refreshExpire, err := time.ParseDuration(viper.GetString("JWT_REFRESH_EXPIRE"))
+	if err != nil {
+		refreshExpire = 168 * time.Hour
 	}
 
 	return &Config{
@@ -47,6 +65,11 @@ func Load() *Config {
 			Password: viper.GetString("DB_PASSWORD"),
 			Name:     viper.GetString("DB_NAME"),
 			SSLMode:  viper.GetString("DB_SSL_MODE"),
+		},
+		JWT: JWTConfig{
+			Secret:        viper.GetString("JWT_SECRET"),
+			AccessExpire:  accessExpire,
+			RefreshExpire: refreshExpire,
 		},
 	}
 }
