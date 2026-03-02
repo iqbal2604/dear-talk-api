@@ -57,3 +57,10 @@ func InternalServerError(c *gin.Context, message string) {
 		Message: message,
 	})
 }
+
+func Conflict(c *gin.Context, message string) {
+	c.JSON(http.StatusConflict, Response{
+		Success: false,
+		Message: message,
+	})
+}

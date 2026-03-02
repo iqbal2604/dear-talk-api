@@ -11,6 +11,7 @@ type Config struct {
 	App      AppConfig
 	Database DatabaseConfig
 	JWT      JWTConfig
+	Redis    RedisConfig
 }
 
 type AppConfig struct {
@@ -32,6 +33,13 @@ type JWTConfig struct {
 	Secret        string
 	AccessExpire  time.Duration
 	RefreshExpire time.Duration
+}
+
+type RedisConfig struct {
+	Host     string
+	Port     string
+	Password string
+	DB       int
 }
 
 func Load() *Config {
@@ -70,6 +78,12 @@ func Load() *Config {
 			Secret:        viper.GetString("JWT_SECRET"),
 			AccessExpire:  accessExpire,
 			RefreshExpire: refreshExpire,
+		},
+		Redis: RedisConfig{
+			Host:     viper.GetString("REDIS_HOST"),
+			Port:     viper.GetString("REDIS_PORT"),
+			Password: viper.GetString("REDIS_PASSWORD"),
+			DB:       viper.GetInt("REDIS_DB"),
 		},
 	}
 }
