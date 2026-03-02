@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/iqbal2604/dear-talk-api.git/internal/domain"
 	"github.com/iqbal2604/dear-talk-api.git/pkg/response"
@@ -50,4 +52,18 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 
 	response.OK(c, "Login Success", result)
+}
+
+// ─── Logout ────────────────────────────────────────────────────────────────────
+func (h *AuthHandler) Logout(c *gin.Context) {
+	//Ambil token dari header
+	authHeader := c.GetHeader("Authorization")
+	token := strings.TrimPrefix(authHeader, "Bearer ")
+
+	if err := h.authUsecase.Logout(c.Request.Context(), token); err != nil {
+		response.BadRequest(c, err.Error(), nil)
+		return
+	}
+
+	response.OK(c, "logout success", nil)
 }

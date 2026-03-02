@@ -5,6 +5,7 @@ package main
 
 import (
 	"github.com/google/wire"
+	"github.com/iqbal2604/dear-talk-api.git/internal/domain"
 	"github.com/iqbal2604/dear-talk-api.git/internal/handler"
 	"github.com/iqbal2604/dear-talk-api.git/internal/middleware"
 	"github.com/iqbal2604/dear-talk-api.git/internal/repository"
@@ -13,6 +14,7 @@ import (
 	"github.com/iqbal2604/dear-talk-api.git/pkg/database"
 	"github.com/iqbal2604/dear-talk-api.git/pkg/jwt"
 	"github.com/iqbal2604/dear-talk-api.git/pkg/redis"
+
 	goredis "github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -23,6 +25,8 @@ var infrastructureSet = wire.NewSet(
 	database.NewPostgresConnection,
 	jwt.NewJWTUtil,
 	redis.NewRedisClient,
+	redis.NewTokenBlacklist,
+	wire.Bind(new(domain.TokenBlacklist), new(*redis.TokenBlacklist)),
 )
 
 var repositorySet = wire.NewSet(

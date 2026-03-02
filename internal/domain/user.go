@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 //───Entity──────────────────────────────────────────────────────────────
 
@@ -25,11 +28,19 @@ type UserRepository interface {
 	Update(user *User) error
 }
 
+//───Token Blacklist Interface─────────────────────────────────────────────
+
+type TokenBlacklist interface {
+	Add(ctx context.Context, token string, expiry time.Duration) error
+	IsBlacklisted(ctx context.Context, token string) (bool, error)
+}
+
 //───Usecase Interface─────────────────────────────────────────────────
 
 type UserUsecase interface {
 	Register(req *RegisterRequest) (*User, error)
 	Login(req *LoginRequest) (*LoginResponse, error)
+	Logout(ctx context.Context, token string) error
 }
 
 //───Request dan Response─────────────────────────────────────────────────

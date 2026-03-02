@@ -8,6 +8,7 @@ package main
 
 import (
 	"github.com/google/wire"
+	"github.com/iqbal2604/dear-talk-api.git/internal/domain"
 	"github.com/iqbal2604/dear-talk-api.git/internal/handler"
 	"github.com/iqbal2604/dear-talk-api.git/internal/middleware"
 	"github.com/iqbal2604/dear-talk-api.git/internal/repository"
@@ -37,9 +38,10 @@ func InitializeApp(cfg *config.Config, log *zap.Logger) (*App, error) {
 	userRepository := repository.NewUserRepository(db)
 	jwtConfig := &cfg.JWT
 	jwtUtil := jwt.NewJWTUtil(jwtConfig)
-	userUsecase := usecase.NewAuthUsecase(userRepository, jwtUtil)
+	tokenBlacklist := redis.NewTokenBlacklist(client)
+	userUsecase := usecase.NewAuthUsecase(userRepository, jwtUtil, tokenBlacklist)
 	authHandler := handler.NewAuthHandler(userUsecase)
-	authMiddleware := middleware.NewAuthMiddleware(jwtUtil)
+	authMiddleware := middleware.NewAuthMiddleware(jwtUtil, tokenBlacklist)
 	app := NewApp(db, client, authHandler, authMiddleware)
 	return app, nil
 }
@@ -47,7 +49,7 @@ func InitializeApp(cfg *config.Config, log *zap.Logger) (*App, error) {
 // wire.go:
 
 // ─── Provider Sets ────────────────────────────────────────────────────────────
-var infrastructureSet = wire.NewSet(database.NewPostgresConnection, jwt.NewJWTUtil, redis.NewRedisClient)
+var infrastructureSet = wire.NewSet(database.NewPostgresConnection, jwt.NewJWTUtil, redis.NewRedisClient, redis.NewTokenBlacklist, wire.Bind(new(domain.TokenBlacklist), new(*redis.TokenBlacklist)))
 
 var repositorySet = wire.NewSet(repository.NewUserRepository)
 

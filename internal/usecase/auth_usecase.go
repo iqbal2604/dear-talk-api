@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"errors"
 
 	"github.com/iqbal2604/dear-talk-api.git/internal/domain"
@@ -9,14 +10,16 @@ import (
 )
 
 type authUsecase struct {
-	userRepo domain.UserRepository
-	jwtUtil  *jwt.JWTUtil
+	userRepo       domain.UserRepository
+	jwtUtil        *jwt.JWTUtil
+	tokenBlacklist domain.TokenBlacklist
 }
 
-func NewAuthUsecase(userRepo domain.UserRepository, jwtUtil *jwt.JWTUtil) domain.UserUsecase {
+func NewAuthUsecase(userRepo domain.UserRepository, jwtUtil *jwt.JWTUtil, tokenBlacklist domain.TokenBlacklist) domain.UserUsecase {
 	return &authUsecase{
-		userRepo: userRepo,
-		jwtUtil:  jwtUtil,
+		userRepo:       userRepo,
+		jwtUtil:        jwtUtil,
+		tokenBlacklist: tokenBlacklist,
 	}
 }
 
@@ -94,4 +97,18 @@ func (u *authUsecase) Login(req *domain.LoginRequest) (*domain.LoginResponse, er
 		RefreshToken: refreshToken,
 		User:         user,
 	}, nil
+}
+
+func (u *authUsecase) Logout(ctx context.Context, token string) error {
+	//Validasi token terlebih dahulu untuk ambil expiry
+	claims, err := u.jwtUtil.ValidateToken(token)
+	if err != nil {
+		return errors.New("invalid token")
+	}
+
+	//Hitung sisa waktu token
+	expiry := claims.ExpiresAt.Sub(claims.IssuedAt.Time)
+
+	//Masukkan ke blaclist
+	return u.tokenBlacklist.Add(ctx, token, expiry)
 }
