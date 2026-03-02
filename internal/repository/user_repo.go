@@ -98,6 +98,20 @@ func (r *userRepository) FindByUsername(username string) (*domain.User, error) {
 	return toUserDomain(&m), nil
 }
 
+func (r *userRepository) Search(query string) ([]*domain.User, error) {
+	var models []model.UserModel
+	result := r.db.Where("username ILIKE ? OR email ILIKE ?", "%"+query+"%", "%"+query+"%").Limit(20).Find(&models)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	users := make([]*domain.User, len(models))
+	for i, m := range models {
+		users[i] = toUserDomain(&m)
+	}
+	return users, nil
+}
+
 func (r *userRepository) Update(user *domain.User) error {
 	m := toUserModel(user)
 	return r.db.Save(m).Error

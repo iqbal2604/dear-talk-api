@@ -25,6 +25,7 @@ type UserRepository interface {
 	FindByID(id uint) (*User, error)
 	FindByEmail(email string) (*User, error)
 	FindByUsername(username string) (*User, error)
+	Search(query string) ([]*User, error)
 	Update(user *User) error
 }
 
@@ -41,6 +42,13 @@ type UserUsecase interface {
 	Register(req *RegisterRequest) (*User, error)
 	Login(req *LoginRequest) (*LoginResponse, error)
 	Logout(ctx context.Context, token string) error
+}
+
+type UserManagementUsecase interface {
+	GetProfile(id uint) (*User, error)
+	UpdateProfile(id uint, req *UpdateProfileRequest) (*User, error)
+	SearchUsers(query string) ([]*User, error)
+	GetUserByID(id uint) (*User, error)
 }
 
 //───Request dan Response─────────────────────────────────────────────────
@@ -60,4 +68,9 @@ type LoginResponse struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 	User         *User  `json:"user"`
+}
+
+type UpdateProfileRequest struct {
+	Username string `json:"username" binding:"omitempty,min=3,max=20"`
+	Avatar   string `json:"avatar" binfing:"omitempty,url"`
 }
