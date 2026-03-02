@@ -24,7 +24,7 @@ func (b *TokenBlacklist) Add(ctx context.Context, token string, expiry time.Dura
 
 // Cek apakah token ada di blacklist
 func (b *TokenBlacklist) IsBlacklisted(ctx context.Context, token string) (bool, error) {
-	key := fmt.Sprint("blacklist:%s", token)
+	key := fmt.Sprintf("blacklist:%s", token)
 	result, err := b.client.Exists(ctx, key).Result()
 	if err != nil {
 		return false, err

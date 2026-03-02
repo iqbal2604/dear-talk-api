@@ -42,7 +42,7 @@ func (m *AuthMiddleware) Authenticate() gin.HandlerFunc {
 		//Cek apakah token sudah di blacklist
 		blacklisted, err := m.tokenBlacklist.IsBlacklisted(c.Request.Context(), tokenStr)
 		if err != nil || blacklisted {
-			response.Unauthorized(c, "token has ben invalidated")
+			response.Unauthorized(c, "token has been invalidated")
 		}
 
 		claims, err := m.jwtUtil.ValidateToken(tokenStr)

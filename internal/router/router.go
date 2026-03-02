@@ -15,7 +15,7 @@ type Handlers struct {
 func Setup(r *gin.Engine, h *Handlers) {
 	r.GET("/health", func(c *gin.Context) {
 		response.OK(c, "server is running", gin.H{
-			"service": "ChatApp",
+			"service": "DearTalk",
 		})
 	})
 

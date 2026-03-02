@@ -28,7 +28,7 @@ type UserRepository interface {
 	Update(user *User) error
 }
 
-//───Token Blacklist Interface─────────────────────────────────────────────
+//───Token Blacklist Interface───────────────────────────────────────────
 
 type TokenBlacklist interface {
 	Add(ctx context.Context, token string, expiry time.Duration) error
