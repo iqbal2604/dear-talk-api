@@ -54,6 +54,11 @@ var middlewareSet = wire.NewSet(
 	middleware.NewAuthMiddleware,
 )
 
+var websocketSet = wire.NewSet(
+	websocket.NewHub,
+	websocket.NewWSHandler,
+)
+
 // ─── App struct ───────────────────────────────────────────────────────────────
 
 type App struct {
@@ -63,6 +68,7 @@ type App struct {
 	UserHandler    *handler.UserHandler
 	RoomHandler    *handler.RoomHandler
 	AuthMiddleware *middleware.AuthMiddleware
+	WSHandler      *websocket.WSHandler
 	MessageHandler *handler.MessageHandler
 }
 
@@ -73,6 +79,7 @@ func NewApp(
 	userHandler *handler.UserHandler,
 	roomHandler *handler.RoomHandler,
 	messageHandler *handler.MessageHandler,
+	wsHandler *websocket.WSHandler,
 	authMiddleware *middleware.AuthMiddleware,
 ) *App {
 	return &App{
@@ -82,6 +89,7 @@ func NewApp(
 		UserHandler:    userHandler,
 		RoomHandler:    roomHandler,
 		MessageHandler: messageHandler,
+		WSHandler:      wsHandler,
 		AuthMiddleware: authMiddleware,
 	}
 }
@@ -95,6 +103,7 @@ func InitializeApp(cfg *config.Config, log *zap.Logger) (*App, error) {
 		usecaseSet,
 		handlerSet,
 		middlewareSet,
+		websocketSet,
 
 		NewApp,
 	)
