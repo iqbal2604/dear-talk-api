@@ -8,7 +8,7 @@ type RoomModel struct {
 	Type      string            `gorm:"not null"`
 	CreatedBy uint              `gorm:"not null"`
 	Members   []RoomMemberModel `gorm:"foreignKey:RoomID"`
-	CreatedA  time.Time
+	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
