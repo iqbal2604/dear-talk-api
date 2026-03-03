@@ -18,6 +18,9 @@ type Handlers struct {
 }
 
 func Setup(r *gin.Engine, h *Handlers) {
+	//Global Middlewares
+	r.Use(middleware.CORSMiddleware())
+
 	r.GET("/health", func(c *gin.Context) {
 		response.OK(c, "server is running", gin.H{
 			"service": "DearTalk",
