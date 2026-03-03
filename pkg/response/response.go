@@ -11,6 +11,15 @@ type Response struct {
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 	Error   interface{} `json:"error,omitempty"`
+	Meta    *Meta       `json:"meta,omitempty"`
+}
+
+// Meta untuk pagination
+type Meta struct {
+	Page      int   `json:"page"`
+	Limit     int   `json:"limit"`
+	Total     int64 `json:"total"`
+	TotalPage int   `json:"total_page"`
 }
 
 func OK(c *gin.Context, message string, data interface{}) {
@@ -62,5 +71,14 @@ func Conflict(c *gin.Context, message string) {
 	c.JSON(http.StatusConflict, Response{
 		Success: false,
 		Message: message,
+	})
+}
+
+func OKWithMeta(c *gin.Context, message string, data interface{}, meta *Meta) {
+	c.JSON(http.StatusOK, Response{
+		Success: true,
+		Message: message,
+		Data:    data,
+		Meta:    meta,
 	})
 }

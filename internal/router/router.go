@@ -12,6 +12,7 @@ type Handlers struct {
 	UserHandler    *handler.UserHandler
 	RoomHandler    *handler.RoomHandler
 	AuthMiddleware *middleware.AuthMiddleware
+	MessageHandler *handler.MessageHandler
 }
 
 func Setup(r *gin.Engine, h *Handlers) {
@@ -31,4 +32,5 @@ func Setup(r *gin.Engine, h *Handlers) {
 	protected.Use(h.AuthMiddleware.Authenticate())
 	registerUserRoutes(protected, h.UserHandler)
 	registerRoomRoutes(protected, h.RoomHandler)
+	registerMessageRoutes(protected, h.MessageHandler)
 }

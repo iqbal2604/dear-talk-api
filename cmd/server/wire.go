@@ -33,18 +33,21 @@ var infrastructureSet = wire.NewSet(
 var repositorySet = wire.NewSet(
 	repository.NewUserRepository,
 	repository.NewRoomRepository,
+	repository.NewMessageRepository,
 )
 
 var usecaseSet = wire.NewSet(
 	usecase.NewAuthUsecase,
 	usecase.NewUserManagementUsecase,
 	usecase.NewRoomUsecase,
+	usecase.NewMessageUsecase,
 )
 
 var handlerSet = wire.NewSet(
 	handler.NewAuthHandler,
 	handler.NewUserHandler,
 	handler.NewRoomHandler,
+	handler.NewMessageHandler,
 )
 
 var middlewareSet = wire.NewSet(
@@ -60,6 +63,7 @@ type App struct {
 	UserHandler    *handler.UserHandler
 	RoomHandler    *handler.RoomHandler
 	AuthMiddleware *middleware.AuthMiddleware
+	MessageHandler *handler.MessageHandler
 }
 
 func NewApp(
@@ -68,6 +72,7 @@ func NewApp(
 	authHandler *handler.AuthHandler,
 	userHandler *handler.UserHandler,
 	roomHandler *handler.RoomHandler,
+	messageHandler *handler.MessageHandler,
 	authMiddleware *middleware.AuthMiddleware,
 ) *App {
 	return &App{
@@ -76,6 +81,7 @@ func NewApp(
 		AuthHandler:    authHandler,
 		UserHandler:    userHandler,
 		RoomHandler:    roomHandler,
+		MessageHandler: messageHandler,
 		AuthMiddleware: authMiddleware,
 	}
 }
