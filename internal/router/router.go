@@ -6,6 +6,7 @@ import (
 	"github.com/iqbal2604/dear-talk-api.git/internal/middleware"
 	"github.com/iqbal2604/dear-talk-api.git/internal/websocket"
 	"github.com/iqbal2604/dear-talk-api.git/pkg/response"
+	goredis "github.com/redis/go-redis/v9"
 )
 
 type Handlers struct {
@@ -15,11 +16,13 @@ type Handlers struct {
 	AuthMiddleware *middleware.AuthMiddleware
 	WSHandler      *websocket.WSHandler
 	MessageHandler *handler.MessageHandler
+	RedisClient    *goredis.Client
 }
 
 func Setup(r *gin.Engine, h *Handlers) {
 	//Global Middlewares
 	r.Use(middleware.CORSMiddleware())
+	r.Use(middleware.RateLimiterMiddleware(h.RedisClient))
 
 	r.GET("/health", func(c *gin.Context) {
 		response.OK(c, "server is running", gin.H{
@@ -33,7 +36,7 @@ func Setup(r *gin.Engine, h *Handlers) {
 	v1 := r.Group("/api/v1")
 
 	// Public routes
-	registerAuthRoutes(v1, h.AuthHandler)
+	registerAuthRoutes(v1, h.AuthHandler, middleware.StrictRateLimiterMiddleware(h.RedisClient))
 
 	// Protected routes
 	protected := v1.Group("/")
