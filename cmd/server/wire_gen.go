@@ -46,21 +46,23 @@ func InitializeApp(cfg *config.Config, log *zap.Logger) (*App, error) {
 	roomRepository := repository.NewRoomRepository(db)
 	roomUsecase := usecase.NewRoomUsecase(roomRepository, userRepository)
 	roomHandler := handler.NewRoomHandler(roomUsecase)
+	messageRepository := repository.NewMessageRepository(db)
+	messageUsecase := usecase.NewMessageUsecase(messageRepository, roomRepository)
+	messageHandler := handler.NewMessageHandler(messageUsecase)
 	authMiddleware := middleware.NewAuthMiddleware(jwtUtil, tokenBlacklist)
-	app := NewApp(db, client, authHandler, userHandler, roomHandler, authMiddleware)
+	app := NewApp(db, client, authHandler, userHandler, roomHandler, messageHandler, authMiddleware)
 	return app, nil
 }
 
 // wire.go:
 
-// ─── Provider Sets ────────────────────────────────────────────────────────────
 var infrastructureSet = wire.NewSet(database.NewPostgresConnection, jwt.NewJWTUtil, redis.NewRedisClient, redis.NewTokenBlacklist, wire.Bind(new(domain.TokenBlacklist), new(*redis.TokenBlacklist)))
 
-var repositorySet = wire.NewSet(repository.NewUserRepository, repository.NewRoomRepository)
+var repositorySet = wire.NewSet(repository.NewUserRepository, repository.NewRoomRepository, repository.NewMessageRepository)
 
-var usecaseSet = wire.NewSet(usecase.NewAuthUsecase, usecase.NewUserManagementUsecase, usecase.NewRoomUsecase)
+var usecaseSet = wire.NewSet(usecase.NewAuthUsecase, usecase.NewUserManagementUsecase, usecase.NewRoomUsecase, usecase.NewMessageUsecase)
 
-var handlerSet = wire.NewSet(handler.NewAuthHandler, handler.NewUserHandler, handler.NewRoomHandler)
+var handlerSet = wire.NewSet(handler.NewAuthHandler, handler.NewUserHandler, handler.NewRoomHandler, handler.NewMessageHandler)
 
 var middlewareSet = wire.NewSet(middleware.NewAuthMiddleware)
 
@@ -71,6 +73,7 @@ type App struct {
 	UserHandler    *handler.UserHandler
 	RoomHandler    *handler.RoomHandler
 	AuthMiddleware *middleware.AuthMiddleware
+	MessageHandler *handler.MessageHandler
 }
 
 func NewApp(
@@ -79,6 +82,7 @@ func NewApp(
 	authHandler *handler.AuthHandler,
 	userHandler *handler.UserHandler,
 	roomHandler *handler.RoomHandler,
+	messageHandler *handler.MessageHandler,
 	authMiddleware *middleware.AuthMiddleware,
 ) *App {
 	return &App{
@@ -87,6 +91,7 @@ func NewApp(
 		AuthHandler:    authHandler,
 		UserHandler:    userHandler,
 		RoomHandler:    roomHandler,
+		MessageHandler: messageHandler,
 		AuthMiddleware: authMiddleware,
 	}
 }
