@@ -35,10 +35,12 @@ var repositorySet = wire.NewSet(
 
 var usecaseSet = wire.NewSet(
 	usecase.NewAuthUsecase,
+	usecase.NewUserManagementUsecase,
 )
 
 var handlerSet = wire.NewSet(
 	handler.NewAuthHandler,
+	handler.NewUserHandler,
 )
 
 var middlewareSet = wire.NewSet(
@@ -51,6 +53,7 @@ type App struct {
 	DB             *gorm.DB
 	Redis          *goredis.Client
 	AuthHandler    *handler.AuthHandler
+	UserHandler    *handler.UserHandler
 	AuthMiddleware *middleware.AuthMiddleware
 }
 
@@ -58,12 +61,14 @@ func NewApp(
 	db *gorm.DB,
 	redisClient *goredis.Client,
 	authHandler *handler.AuthHandler,
+	userHandler *handler.UserHandler,
 	authMiddleware *middleware.AuthMiddleware,
 ) *App {
 	return &App{
 		DB:             db,
 		Redis:          redisClient,
 		AuthHandler:    authHandler,
+		UserHandler:    userHandler,
 		AuthMiddleware: authMiddleware,
 	}
 }

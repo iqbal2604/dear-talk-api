@@ -41,8 +41,10 @@ func InitializeApp(cfg *config.Config, log *zap.Logger) (*App, error) {
 	tokenBlacklist := redis.NewTokenBlacklist(client)
 	userUsecase := usecase.NewAuthUsecase(userRepository, jwtUtil, tokenBlacklist)
 	authHandler := handler.NewAuthHandler(userUsecase)
+	userManagementUsecase := usecase.NewUserManagementUsecase(userRepository)
+	userHandler := handler.NewUserHandler(userManagementUsecase)
 	authMiddleware := middleware.NewAuthMiddleware(jwtUtil, tokenBlacklist)
-	app := NewApp(db, client, authHandler, authMiddleware)
+	app := NewApp(db, client, authHandler, userHandler, authMiddleware)
 	return app, nil
 }
 
@@ -53,9 +55,9 @@ var infrastructureSet = wire.NewSet(database.NewPostgresConnection, jwt.NewJWTUt
 
 var repositorySet = wire.NewSet(repository.NewUserRepository)
 
-var usecaseSet = wire.NewSet(usecase.NewAuthUsecase)
+var usecaseSet = wire.NewSet(usecase.NewAuthUsecase, usecase.NewUserManagementUsecase)
 
-var handlerSet = wire.NewSet(handler.NewAuthHandler)
+var handlerSet = wire.NewSet(handler.NewAuthHandler, handler.NewUserHandler)
 
 var middlewareSet = wire.NewSet(middleware.NewAuthMiddleware)
 
@@ -63,6 +65,7 @@ type App struct {
 	DB             *gorm.DB
 	Redis          *redis2.Client
 	AuthHandler    *handler.AuthHandler
+	UserHandler    *handler.UserHandler
 	AuthMiddleware *middleware.AuthMiddleware
 }
 
@@ -70,12 +73,14 @@ func NewApp(
 	db *gorm.DB,
 	redisClient *redis2.Client,
 	authHandler *handler.AuthHandler,
+	userHandler *handler.UserHandler,
 	authMiddleware *middleware.AuthMiddleware,
 ) *App {
 	return &App{
 		DB:             db,
 		Redis:          redisClient,
 		AuthHandler:    authHandler,
+		UserHandler:    userHandler,
 		AuthMiddleware: authMiddleware,
 	}
 }

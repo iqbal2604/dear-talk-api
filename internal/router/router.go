@@ -9,6 +9,7 @@ import (
 
 type Handlers struct {
 	AuthHandler    *handler.AuthHandler
+	UserHandler    *handler.UserHandler
 	AuthMiddleware *middleware.AuthMiddleware
 }
 
@@ -27,15 +28,5 @@ func Setup(r *gin.Engine, h *Handlers) {
 	// Protected routes
 	protected := v1.Group("/")
 	protected.Use(h.AuthMiddleware.Authenticate())
-	registerProtectedRoutes(protected)
-}
-
-func registerProtectedRoutes(protected *gin.RouterGroup) {
-	// Sementara hanya /me, nanti akan diisi seiring phase berkembang
-	protected.GET("/me", func(c *gin.Context) {
-		response.OK(c, "ok", gin.H{
-			"user_id":  c.GetUint("user_id"),
-			"username": c.GetString("username"),
-		})
-	})
+	registerUserRoutes(protected, h.UserHandler)
 }

@@ -48,6 +48,7 @@ func main() {
 	router.Setup(r, &router.Handlers{
 		AuthHandler:    app.AuthHandler,
 		AuthMiddleware: app.AuthMiddleware,
+		UserHandler:    app.UserHandler,
 	})
 
 	// Server
