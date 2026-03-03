@@ -52,6 +52,7 @@ func main() {
 		MessageHandler: app.MessageHandler,
 		WSHandler:      app.WSHandler,
 		RoomHandler:    app.RoomHandler,
+		RedisClient:    app.Redis,
 	})
 
 	// Server
