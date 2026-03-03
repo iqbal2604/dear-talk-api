@@ -10,6 +10,7 @@ import (
 type Handlers struct {
 	AuthHandler    *handler.AuthHandler
 	UserHandler    *handler.UserHandler
+	RoomHandler    *handler.RoomHandler
 	AuthMiddleware *middleware.AuthMiddleware
 }
 
@@ -29,4 +30,5 @@ func Setup(r *gin.Engine, h *Handlers) {
 	protected := v1.Group("/")
 	protected.Use(h.AuthMiddleware.Authenticate())
 	registerUserRoutes(protected, h.UserHandler)
+	registerRoomRoutes(protected, h.RoomHandler)
 }
