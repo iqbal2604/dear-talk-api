@@ -43,8 +43,11 @@ func InitializeApp(cfg *config.Config, log *zap.Logger) (*App, error) {
 	authHandler := handler.NewAuthHandler(userUsecase)
 	userManagementUsecase := usecase.NewUserManagementUsecase(userRepository)
 	userHandler := handler.NewUserHandler(userManagementUsecase)
+	roomRepository := repository.NewRoomRepository(db)
+	roomUsecase := usecase.NewRoomUsecase(roomRepository, userRepository)
+	roomHandler := handler.NewRoomHandler(roomUsecase)
 	authMiddleware := middleware.NewAuthMiddleware(jwtUtil, tokenBlacklist)
-	app := NewApp(db, client, authHandler, userHandler, authMiddleware)
+	app := NewApp(db, client, authHandler, userHandler, roomHandler, authMiddleware)
 	return app, nil
 }
 
@@ -53,11 +56,11 @@ func InitializeApp(cfg *config.Config, log *zap.Logger) (*App, error) {
 // ─── Provider Sets ────────────────────────────────────────────────────────────
 var infrastructureSet = wire.NewSet(database.NewPostgresConnection, jwt.NewJWTUtil, redis.NewRedisClient, redis.NewTokenBlacklist, wire.Bind(new(domain.TokenBlacklist), new(*redis.TokenBlacklist)))
 
-var repositorySet = wire.NewSet(repository.NewUserRepository)
+var repositorySet = wire.NewSet(repository.NewUserRepository, repository.NewRoomRepository)
 
-var usecaseSet = wire.NewSet(usecase.NewAuthUsecase, usecase.NewUserManagementUsecase)
+var usecaseSet = wire.NewSet(usecase.NewAuthUsecase, usecase.NewUserManagementUsecase, usecase.NewRoomUsecase)
 
-var handlerSet = wire.NewSet(handler.NewAuthHandler, handler.NewUserHandler)
+var handlerSet = wire.NewSet(handler.NewAuthHandler, handler.NewUserHandler, handler.NewRoomHandler)
 
 var middlewareSet = wire.NewSet(middleware.NewAuthMiddleware)
 
@@ -66,6 +69,7 @@ type App struct {
 	Redis          *redis2.Client
 	AuthHandler    *handler.AuthHandler
 	UserHandler    *handler.UserHandler
+	RoomHandler    *handler.RoomHandler
 	AuthMiddleware *middleware.AuthMiddleware
 }
 
@@ -74,6 +78,7 @@ func NewApp(
 	redisClient *redis2.Client,
 	authHandler *handler.AuthHandler,
 	userHandler *handler.UserHandler,
+	roomHandler *handler.RoomHandler,
 	authMiddleware *middleware.AuthMiddleware,
 ) *App {
 	return &App{
@@ -81,6 +86,7 @@ func NewApp(
 		Redis:          redisClient,
 		AuthHandler:    authHandler,
 		UserHandler:    userHandler,
+		RoomHandler:    roomHandler,
 		AuthMiddleware: authMiddleware,
 	}
 }

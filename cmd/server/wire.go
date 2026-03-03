@@ -31,16 +31,19 @@ var infrastructureSet = wire.NewSet(
 
 var repositorySet = wire.NewSet(
 	repository.NewUserRepository,
+	repository.NewRoomRepository,
 )
 
 var usecaseSet = wire.NewSet(
 	usecase.NewAuthUsecase,
 	usecase.NewUserManagementUsecase,
+	usecase.NewRoomUsecase,
 )
 
 var handlerSet = wire.NewSet(
 	handler.NewAuthHandler,
 	handler.NewUserHandler,
+	handler.NewRoomHandler,
 )
 
 var middlewareSet = wire.NewSet(
@@ -54,6 +57,7 @@ type App struct {
 	Redis          *goredis.Client
 	AuthHandler    *handler.AuthHandler
 	UserHandler    *handler.UserHandler
+	RoomHandler    *handler.RoomHandler
 	AuthMiddleware *middleware.AuthMiddleware
 }
 
@@ -62,6 +66,7 @@ func NewApp(
 	redisClient *goredis.Client,
 	authHandler *handler.AuthHandler,
 	userHandler *handler.UserHandler,
+	roomHandler *handler.RoomHandler,
 	authMiddleware *middleware.AuthMiddleware,
 ) *App {
 	return &App{
@@ -69,6 +74,7 @@ func NewApp(
 		Redis:          redisClient,
 		AuthHandler:    authHandler,
 		UserHandler:    userHandler,
+		RoomHandler:    roomHandler,
 		AuthMiddleware: authMiddleware,
 	}
 }

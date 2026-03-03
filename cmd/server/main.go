@@ -49,6 +49,7 @@ func main() {
 		AuthHandler:    app.AuthHandler,
 		AuthMiddleware: app.AuthMiddleware,
 		UserHandler:    app.UserHandler,
+		RoomHandler:    app.RoomHandler,
 	})
 
 	// Server
