@@ -17,6 +17,17 @@ func NewAuthHandler(authUsecase domain.UserUsecase) *AuthHandler {
 	return &AuthHandler{authUsecase: authUsecase}
 }
 
+// Register godoc
+// @Summary      Register akun baru
+// @Description  Membuat akun user baru dengan username, email, dan password
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param        request  body      domain.RegisterRequest  true  "Register Request"
+// @Success      201      {object}  response.Response{data=domain.User}
+// @Failure      400      {object}  response.Response
+// @Failure      409      {object}  response.Response
+// @Router       /auth/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req domain.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -39,6 +50,17 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	response.Created(c, "register success", user)
 }
 
+// Login godoc
+// @Summary      Login user
+// @Description  Login dengan email dan password, mendapatkan JWT token
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param        request  body      domain.LoginRequest  true  "Login Request"
+// @Success      200      {object}  response.Response{data=domain.LoginResponse}
+// @Failure      400      {object}  response.Response
+// @Failure      401      {object}  response.Response
+// @Router       /auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req domain.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -61,6 +83,16 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	response.OK(c, "login success", result)
 }
 
+// Logout godoc
+// @Summary      Logout user
+// @Description  Logout dan invalidate JWT token
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200  {object}  response.Response
+// @Failure      400  {object}  response.Response
+// @Router       /auth/logout [post]
 func (h *AuthHandler) Logout(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
 	token := strings.TrimPrefix(authHeader, "Bearer ")

@@ -2,11 +2,14 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	_ "github.com/iqbal2604/dear-talk-api.git/docs"
 	"github.com/iqbal2604/dear-talk-api.git/internal/handler"
 	"github.com/iqbal2604/dear-talk-api.git/internal/middleware"
 	"github.com/iqbal2604/dear-talk-api.git/internal/websocket"
 	"github.com/iqbal2604/dear-talk-api.git/pkg/response"
 	goredis "github.com/redis/go-redis/v9"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Handlers struct {
@@ -29,6 +32,9 @@ func Setup(r *gin.Engine, h *Handlers) {
 			"service": "DearTalk",
 		})
 	})
+
+	//Swagger
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// WebSocket route (auth via query param token)
 	r.GET("/ws", h.WSHandler.ServeWS)

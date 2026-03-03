@@ -1,0 +1,23 @@
+touch .dockerignore
+```
+
+Isi `.dockerignore`:
+```
+# Git
+.git
+.gitignore
+
+# Env
+.env
+
+# Binary
+bin/
+dear-talk
+
+# IDE
+.vscode/
+.idea/
+
+# Test
+*_test.go
+coverage.out

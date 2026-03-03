@@ -1,3 +1,22 @@
+// @title           Deartalk API
+// @version         1.0
+// @description     Backend API for Deartalk — Real-time Messaging Application
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name    Deartalk Support
+// @contact.email   support@deartalk.com
+
+// @license.name    MIT
+// @license.url     https://opensource.org/licenses/MIT
+
+// @host            localhost:8080
+// @BasePath        /api/v1
+
+// @securityDefinitions.apikey  BearerAuth
+// @in                          header
+// @name                        Authorization
+// @description                 Format: Bearer <token>
+
 package main
 
 import (
