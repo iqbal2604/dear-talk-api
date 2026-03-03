@@ -10,6 +10,7 @@ import (
 	"github.com/iqbal2604/dear-talk-api.git/internal/middleware"
 	"github.com/iqbal2604/dear-talk-api.git/internal/repository"
 	"github.com/iqbal2604/dear-talk-api.git/internal/usecase"
+	"github.com/iqbal2604/dear-talk-api.git/internal/websocket"
 	"github.com/iqbal2604/dear-talk-api.git/pkg/config"
 	"github.com/iqbal2604/dear-talk-api.git/pkg/database"
 	"github.com/iqbal2604/dear-talk-api.git/pkg/jwt"

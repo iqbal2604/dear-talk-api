@@ -50,6 +50,7 @@ func main() {
 		AuthMiddleware: app.AuthMiddleware,
 		UserHandler:    app.UserHandler,
 		MessageHandler: app.MessageHandler,
+		WSHandler:      app.WSHandler,
 		RoomHandler:    app.RoomHandler,
 	})
 

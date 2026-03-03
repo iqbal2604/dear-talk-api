@@ -13,6 +13,7 @@ import (
 	"github.com/iqbal2604/dear-talk-api.git/internal/middleware"
 	"github.com/iqbal2604/dear-talk-api.git/internal/repository"
 	"github.com/iqbal2604/dear-talk-api.git/internal/usecase"
+	"github.com/iqbal2604/dear-talk-api.git/internal/websocket"
 	"github.com/iqbal2604/dear-talk-api.git/pkg/config"
 	"github.com/iqbal2604/dear-talk-api.git/pkg/database"
 	"github.com/iqbal2604/dear-talk-api.git/pkg/jwt"
@@ -49,8 +50,10 @@ func InitializeApp(cfg *config.Config, log *zap.Logger) (*App, error) {
 	messageRepository := repository.NewMessageRepository(db)
 	messageUsecase := usecase.NewMessageUsecase(messageRepository, roomRepository)
 	messageHandler := handler.NewMessageHandler(messageUsecase)
+	hub := websocket.NewHub()
+	wsHandler := websocket.NewWSHandler(hub, jwtUtil, roomRepository, messageRepository, log)
 	authMiddleware := middleware.NewAuthMiddleware(jwtUtil, tokenBlacklist)
-	app := NewApp(db, client, authHandler, userHandler, roomHandler, messageHandler, authMiddleware)
+	app := NewApp(db, client, authHandler, userHandler, roomHandler, messageHandler, wsHandler, authMiddleware)
 	return app, nil
 }
 
@@ -66,6 +69,8 @@ var handlerSet = wire.NewSet(handler.NewAuthHandler, handler.NewUserHandler, han
 
 var middlewareSet = wire.NewSet(middleware.NewAuthMiddleware)
 
+var websocketSet = wire.NewSet(websocket.NewHub, websocket.NewWSHandler)
+
 type App struct {
 	DB             *gorm.DB
 	Redis          *redis2.Client
@@ -73,6 +78,7 @@ type App struct {
 	UserHandler    *handler.UserHandler
 	RoomHandler    *handler.RoomHandler
 	AuthMiddleware *middleware.AuthMiddleware
+	WSHandler      *websocket.WSHandler
 	MessageHandler *handler.MessageHandler
 }
 
@@ -83,6 +89,7 @@ func NewApp(
 	userHandler *handler.UserHandler,
 	roomHandler *handler.RoomHandler,
 	messageHandler *handler.MessageHandler,
+	wsHandler *websocket.WSHandler,
 	authMiddleware *middleware.AuthMiddleware,
 ) *App {
 	return &App{
@@ -92,6 +99,7 @@ func NewApp(
 		UserHandler:    userHandler,
 		RoomHandler:    roomHandler,
 		MessageHandler: messageHandler,
+		WSHandler:      wsHandler,
 		AuthMiddleware: authMiddleware,
 	}
 }

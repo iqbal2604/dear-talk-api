@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/iqbal2604/dear-talk-api.git/internal/domain"
 	"github.com/iqbal2604/dear-talk-api.git/pkg/response"
+	"github.com/iqbal2604/dear-talk-api.git/pkg/validator"
 )
 
 type AuthHandler struct {
@@ -16,13 +17,16 @@ func NewAuthHandler(authUsecase domain.UserUsecase) *AuthHandler {
 	return &AuthHandler{authUsecase: authUsecase}
 }
 
-// ─── Register ─────────────────────────────────────────────────────────────────
-
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req domain.RegisterRequest
-
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, "Invalid Request", err.Error())
+		response.BadRequest(c, "invalid request", err.Error())
+		return
+	}
+
+	// Validasi input
+	if errs := validator.Validate(req); len(errs) > 0 {
+		response.UnprocessableEntity(c, "validation error", errs)
 		return
 	}
 
@@ -32,16 +36,19 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	response.Created(c, "Register Success", user)
+	response.Created(c, "register success", user)
 }
-
-// ─── Login ────────────────────────────────────────────────────────────────────
 
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req domain.LoginRequest
-
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, "Invalid Request", err.Error())
+		response.BadRequest(c, "invalid request", err.Error())
+		return
+	}
+
+	// Validasi input
+	if errs := validator.Validate(req); len(errs) > 0 {
+		response.UnprocessableEntity(c, "validation error", errs)
 		return
 	}
 
@@ -51,12 +58,10 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "Login Success", result)
+	response.OK(c, "login success", result)
 }
 
-// ─── Logout ────────────────────────────────────────────────────────────────────
 func (h *AuthHandler) Logout(c *gin.Context) {
-	//Ambil token dari header
 	authHeader := c.GetHeader("Authorization")
 	token := strings.TrimPrefix(authHeader, "Bearer ")
 

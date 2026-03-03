@@ -74,6 +74,14 @@ func Conflict(c *gin.Context, message string) {
 	})
 }
 
+func UnprocessableEntity(c *gin.Context, message string, err interface{}) {
+	c.JSON(http.StatusUnprocessableEntity, Response{
+		Success: false,
+		Message: message,
+		Error:   err,
+	})
+}
+
 func OKWithMeta(c *gin.Context, message string, data interface{}, meta *Meta) {
 	c.JSON(http.StatusOK, Response{
 		Success: true,
