@@ -38,7 +38,7 @@ func main() {
 	}
 
 	// Auto migrate
-	if err := app.DB.AutoMigrate(&model.UserModel{}, &model.RoomModel{}, &model.RoomMemberModel{}); err != nil {
+	if err := app.DB.AutoMigrate(&model.UserModel{}, &model.RoomModel{}, &model.RoomMemberModel{}, &model.MessageModel{}, &model.ReadStatusModel{}); err != nil {
 		log.Fatal("Failed to migrate database", zap.Error(err))
 	}
 	log.Info("Database migrated successfully")

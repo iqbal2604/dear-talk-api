@@ -21,6 +21,7 @@ import (
 )
 
 // ─── Provider Sets ────────────────────────────────────────────────────────────
+
 var infrastructureSet = wire.NewSet(
 	database.NewPostgresConnection,
 	jwt.NewJWTUtil,
