@@ -16,8 +16,18 @@ func NewRoomHandler(roomUsecase domain.RoomUsecase) *RoomHandler {
 	return &RoomHandler{roomUsecase: roomUsecase}
 }
 
-// ─── Create Room ──────────────────────────────────────────────────────────────
-
+// CreateRoom godoc
+// @Summary      Buat room baru
+// @Description  Membuat room baru bertipe private atau group
+// @Tags         Rooms
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        request  body      domain.CreateRoomRequest  true  "Create Room Request"
+// @Success      201      {object}  response.Response{data=domain.Room}
+// @Failure      400      {object}  response.Response
+// @Failure      401      {object}  response.Response
+// @Router       /rooms [post]
 func (h *RoomHandler) CreateRoom(c *gin.Context) {
 	userID := c.GetUint("user_id")
 
@@ -36,8 +46,16 @@ func (h *RoomHandler) CreateRoom(c *gin.Context) {
 	response.Created(c, "room created", room)
 }
 
-// ─── Get Rooms ────────────────────────────────────────────────────────────────
-
+// GetRooms godoc
+// @Summary      Lihat semua room
+// @Description  Mendapatkan semua room yang dimiliki user yang sedang login
+// @Tags         Rooms
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200  {object}  response.Response{data=[]domain.Room}
+// @Failure      401  {object}  response.Response
+// @Failure      500  {object}  response.Response
+// @Router       /rooms [get]
 func (h *RoomHandler) GetRooms(c *gin.Context) {
 	userID := c.GetUint("user_id")
 
@@ -50,8 +68,18 @@ func (h *RoomHandler) GetRooms(c *gin.Context) {
 	response.OK(c, "rooms fetched", rooms)
 }
 
-// ─── Get Room By ID ───────────────────────────────────────────────────────────
-
+// GetRoomByID godoc
+// @Summary      Lihat detail room
+// @Description  Mendapatkan detail room beserta semua member
+// @Tags         Rooms
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id   path      int  true  "Room ID"
+// @Success      200  {object}  response.Response{data=domain.Room}
+// @Failure      400  {object}  response.Response
+// @Failure      401  {object}  response.Response
+// @Failure      404  {object}  response.Response
+// @Router       /rooms/{id} [get]
 func (h *RoomHandler) GetRoomByID(c *gin.Context) {
 	userID := c.GetUint("user_id")
 
@@ -70,8 +98,19 @@ func (h *RoomHandler) GetRoomByID(c *gin.Context) {
 	response.OK(c, "room fetched", room)
 }
 
-// ─── Update Room ──────────────────────────────────────────────────────────────
-
+// UpdateRoom godoc
+// @Summary      Update room
+// @Description  Update nama room, hanya admin yang bisa melakukan ini
+// @Tags         Rooms
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id       path      int                       true  "Room ID"
+// @Param        request  body      domain.UpdateRoomRequest  true  "Update Room Request"
+// @Success      200      {object}  response.Response{data=domain.Room}
+// @Failure      400      {object}  response.Response
+// @Failure      401      {object}  response.Response
+// @Router       /rooms/{id} [put]
 func (h *RoomHandler) UpdateRoom(c *gin.Context) {
 	userID := c.GetUint("user_id")
 
@@ -96,8 +135,17 @@ func (h *RoomHandler) UpdateRoom(c *gin.Context) {
 	response.OK(c, "room updated", room)
 }
 
-// ─── Delete Room ──────────────────────────────────────────────────────────────
-
+// DeleteRoom godoc
+// @Summary      Hapus room
+// @Description  Menghapus room, hanya admin yang bisa melakukan ini
+// @Tags         Rooms
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id   path      int  true  "Room ID"
+// @Success      200  {object}  response.Response
+// @Failure      400  {object}  response.Response
+// @Failure      401  {object}  response.Response
+// @Router       /rooms/{id} [delete]
 func (h *RoomHandler) DeleteRoom(c *gin.Context) {
 	userID := c.GetUint("user_id")
 
@@ -115,8 +163,19 @@ func (h *RoomHandler) DeleteRoom(c *gin.Context) {
 	response.OK(c, "room deleted", nil)
 }
 
-// ─── Add Member ───────────────────────────────────────────────────────────────
-
+// AddMember godoc
+// @Summary      Tambah member
+// @Description  Menambah member baru ke room, hanya admin yang bisa melakukan ini
+// @Tags         Rooms
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id       path      int                      true  "Room ID"
+// @Param        request  body      domain.AddMemberRequest  true  "Add Member Request"
+// @Success      200      {object}  response.Response
+// @Failure      400      {object}  response.Response
+// @Failure      401      {object}  response.Response
+// @Router       /rooms/{id}/members [post]
 func (h *RoomHandler) AddMember(c *gin.Context) {
 	userID := c.GetUint("user_id")
 
@@ -140,8 +199,18 @@ func (h *RoomHandler) AddMember(c *gin.Context) {
 	response.OK(c, "member added", nil)
 }
 
-// ─── Remove Member ────────────────────────────────────────────────────────────
-
+// RemoveMember godoc
+// @Summary      Hapus member
+// @Description  Menghapus member dari room, hanya admin yang bisa melakukan ini
+// @Tags         Rooms
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id      path      int  true  "Room ID"
+// @Param        userId  path      int  true  "User ID yang akan dihapus"
+// @Success      200     {object}  response.Response
+// @Failure      400     {object}  response.Response
+// @Failure      401     {object}  response.Response
+// @Router       /rooms/{id}/members/{userId} [delete]
 func (h *RoomHandler) RemoveMember(c *gin.Context) {
 	userID := c.GetUint("user_id")
 

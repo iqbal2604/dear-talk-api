@@ -1,5 +1,41 @@
 basePath: /api/v1
 definitions:
+  domain.AddMemberRequest:
+    properties:
+      user_id:
+        type: integer
+    required:
+    - user_id
+    type: object
+  domain.CreateRoomRequest:
+    properties:
+      members:
+        items:
+          type: integer
+        minItems: 1
+        type: array
+      name:
+        maxLength: 50
+        minLength: 3
+        type: string
+      type:
+        allOf:
+        - $ref: '#/definitions/domain.RoomType'
+        enum:
+        - private
+        - group
+    required:
+    - members
+    - type
+    type: object
+  domain.EditMessageRequest:
+    properties:
+      content:
+        minLength: 1
+        type: string
+    required:
+    - content
+    type: object
   domain.LoginRequest:
     properties:
       email:
@@ -19,6 +55,45 @@ definitions:
       user:
         $ref: '#/definitions/domain.User'
     type: object
+  domain.MemberRole:
+    enum:
+    - admin
+    - member
+    type: string
+    x-enum-varnames:
+    - MemberRoleAdmin
+    - MemberRoleMember
+  domain.Message:
+    properties:
+      content:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: integer
+      roomID:
+        type: integer
+      sender:
+        $ref: '#/definitions/domain.User'
+      senderID:
+        type: integer
+      type:
+        $ref: '#/definitions/domain.MessageType'
+      updatedAt:
+        type: string
+    type: object
+  domain.MessageType:
+    enum:
+    - text
+    - image
+    - file
+    type: string
+    x-enum-varnames:
+    - MessageTypeText
+    - MessageTypeImage
+    - MessageTypeFile
   domain.RegisterRequest:
     properties:
       email:
@@ -35,6 +110,63 @@ definitions:
     - password
     - username
     type: object
+  domain.Room:
+    properties:
+      createdAt:
+        type: string
+      createdBy:
+        type: integer
+      id:
+        type: integer
+      members:
+        items:
+          $ref: '#/definitions/domain.RoomMember'
+        type: array
+      name:
+        type: string
+      type:
+        $ref: '#/definitions/domain.RoomType'
+      updatedAt:
+        type: string
+    type: object
+  domain.RoomMember:
+    properties:
+      id:
+        type: integer
+      joinedAt:
+        type: string
+      role:
+        $ref: '#/definitions/domain.MemberRole'
+      roomID:
+        type: integer
+      user:
+        $ref: '#/definitions/domain.User'
+      userID:
+        type: integer
+    type: object
+  domain.RoomType:
+    enum:
+    - private
+    - group
+    type: string
+    x-enum-varnames:
+    - RoomTypePrivate
+    - RoomTypeGroup
+  domain.SendMessageRequest:
+    properties:
+      content:
+        minLength: 1
+        type: string
+      type:
+        allOf:
+        - $ref: '#/definitions/domain.MessageType'
+        enum:
+        - text
+        - image
+        - file
+    required:
+    - content
+    type: object
   domain.UpdateProfileRequest:
     properties:
       avatar:
@@ -43,6 +175,15 @@ definitions:
         maxLength: 20
         minLength: 3
         type: string
+    type: object
+  domain.UpdateRoomRequest:
+    properties:
+      name:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - name
     type: object
   domain.User:
     properties:
@@ -189,6 +330,435 @@ paths:
       summary: Register akun baru
       tags:
       - Auth
+  /messages/{id}:
+    delete:
+      description: Menghapus pesan secara soft delete, hanya pengirim yang bisa melakukan
+        ini
+      parameters:
+      - description: Message ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Hapus pesan
+      tags:
+      - Messages
+    put:
+      consumes:
+      - application/json
+      description: Mengedit isi pesan, hanya pengirim yang bisa melakukan ini
+      parameters:
+      - description: Message ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Edit Message Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.EditMessageRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.Message'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Edit pesan
+      tags:
+      - Messages
+  /rooms:
+    get:
+      description: Mendapatkan semua room yang dimiliki user yang sedang login
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/domain.Room'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Lihat semua room
+      tags:
+      - Rooms
+    post:
+      consumes:
+      - application/json
+      description: Membuat room baru bertipe private atau group
+      parameters:
+      - description: Create Room Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateRoomRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.Room'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Buat room baru
+      tags:
+      - Rooms
+  /rooms/{id}:
+    delete:
+      description: Menghapus room, hanya admin yang bisa melakukan ini
+      parameters:
+      - description: Room ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Hapus room
+      tags:
+      - Rooms
+    get:
+      description: Mendapatkan detail room beserta semua member
+      parameters:
+      - description: Room ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.Room'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Lihat detail room
+      tags:
+      - Rooms
+    put:
+      consumes:
+      - application/json
+      description: Update nama room, hanya admin yang bisa melakukan ini
+      parameters:
+      - description: Room ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update Room Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdateRoomRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.Room'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Update room
+      tags:
+      - Rooms
+  /rooms/{id}/members:
+    post:
+      consumes:
+      - application/json
+      description: Menambah member baru ke room, hanya admin yang bisa melakukan ini
+      parameters:
+      - description: Room ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Add Member Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.AddMemberRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Tambah member
+      tags:
+      - Rooms
+  /rooms/{id}/members/{userId}:
+    delete:
+      description: Menghapus member dari room, hanya admin yang bisa melakukan ini
+      parameters:
+      - description: Room ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User ID yang akan dihapus
+        in: path
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Hapus member
+      tags:
+      - Rooms
+  /rooms/{id}/messages:
+    get:
+      description: Mendapatkan riwayat pesan dalam sebuah room dengan pagination
+      parameters:
+      - description: Room ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Items per page (default: 20, max: 50)'
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/domain.Message'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Ambil riwayat pesan
+      tags:
+      - Messages
+    post:
+      consumes:
+      - application/json
+      description: Mengirim pesan baru ke sebuah room
+      parameters:
+      - description: Room ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Send Message Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SendMessageRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.Message'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Kirim pesan
+      tags:
+      - Messages
+  /rooms/{id}/read:
+    post:
+      description: Menandai semua pesan dalam room sudah dibaca oleh user
+      parameters:
+      - description: Room ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Tandai pesan sudah dibaca
+      tags:
+      - Messages
   /users/{id}:
     get:
       description: Mendapatkan data profil user berdasarkan ID
