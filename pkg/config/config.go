@@ -2,6 +2,7 @@ package config
 
 import (
 	"log"
+	"os"
 	"time"
 
 	"github.com/spf13/viper"
@@ -62,28 +63,35 @@ func Load() *Config {
 
 	return &Config{
 		App: AppConfig{
-			Name: viper.GetString("APP_NAME"),
-			Env:  viper.GetString("APP_ENV"),
-			Port: viper.GetString("APP_PORT"),
+			Name: getEnv("APP_NAME", "Deartalk"),
+			Env:  getEnv("APP_ENV", "production"),
+			Port: getEnv("PORT", viper.GetString("APP_PORT")), // Railway pakai PORT
 		},
 		Database: DatabaseConfig{
-			Host:     viper.GetString("DB_HOST"),
-			Port:     viper.GetString("DB_PORT"),
-			User:     viper.GetString("DB_USER"),
-			Password: viper.GetString("DB_PASSWORD"),
-			Name:     viper.GetString("DB_NAME"),
-			SSLMode:  viper.GetString("DB_SSL_MODE"),
+			Host:     getEnv("PGHOST", viper.GetString("DB_HOST")),
+			Port:     getEnv("PGPORT", viper.GetString("DB_PORT")),
+			User:     getEnv("PGUSER", viper.GetString("DB_USER")),
+			Password: getEnv("PGPASSWORD", viper.GetString("DB_PASSWORD")),
+			Name:     getEnv("PGDATABASE", viper.GetString("DB_NAME")),
+			SSLMode:  getEnv("DB_SSL_MODE", "require"), // Railway butuh SSL
 		},
 		JWT: JWTConfig{
-			Secret:        viper.GetString("JWT_SECRET"),
+			Secret:        getEnv("JWT_SECRET", viper.GetString("JWT_SECRET")),
 			AccessExpire:  accessExpire,
 			RefreshExpire: refreshExpire,
 		},
 		Redis: RedisConfig{
-			Host:     viper.GetString("REDIS_HOST"),
-			Port:     viper.GetString("REDIS_PORT"),
-			Password: viper.GetString("REDIS_PASSWORD"),
-			DB:       viper.GetInt("REDIS_DB"),
+			Host:     getEnv("REDIS_HOST", viper.GetString("REDIS_HOST")),
+			Port:     getEnv("REDIS_PORT", viper.GetString("REDIS_PORT")),
+			Password: getEnv("REDIS_PASSWORD", viper.GetString("REDIS_PASSWORD")),
+			DB:       0,
 		},
 	}
+}
+
+func getEnv(key, defaultVal string) string {
+	if val := os.Getenv(key); val != "" {
+		return val
+	}
+	return defaultVal
 }
