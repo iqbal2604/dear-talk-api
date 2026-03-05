@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: deartalk-config
+  namespace: deartalk
+data:
+  APP_NAME: "Deartalk"
+  APP_ENV: "production"
+  APP_PORT: "8080"
+  DB_HOST: "postgres-service"
+  DB_PORT: "5432"
+  DB_NAME: "deartalk"
+  DB_SSL_MODE: "disable"
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  REDIS_DB: "0"
+  JWT_ACCESS_EXPIRE: "15m"
+  JWT_REFRESH_EXPIRE: "168h"
