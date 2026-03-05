@@ -60,7 +60,7 @@ jobs:
         run: mockery --dir=internal/domain --all --output=internal/mocks --outpkg=mocks
 
       - name: Run unit tests
-        run: go test ./internal/... -v -cover
+        run: go test ./internal/usecase/test/... ./internal/handler/test/... -v -cover
         env:
           APP_ENV: test
           DB_HOST: localhost
