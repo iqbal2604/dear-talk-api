@@ -64,6 +64,8 @@ func main() {
 
 	// Setup router
 	r := gin.Default()
+	r.RedirectTrailingSlash = false
+	r.RedirectFixedPath = false
 	router.Setup(r, &router.Handlers{
 		AuthHandler:    app.AuthHandler,
 		AuthMiddleware: app.AuthMiddleware,

@@ -11,7 +11,7 @@ func CORSMiddleware() gin.HandlerFunc {
 	return cors.New(cors.Config{
 		// Di production ganti dengan domain spesifik
 		// contoh: []string{"https://yourdomain.com"}
-		AllowOrigins: []string{"*"},
+		AllowOrigins: []string{"http://localhost:3000"},
 
 		AllowMethods: []string{
 			"GET",

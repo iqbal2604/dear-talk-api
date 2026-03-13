@@ -73,7 +73,7 @@ func Load() *Config {
 			User:     getEnv("PGUSER", viper.GetString("DB_USER")),
 			Password: getEnv("PGPASSWORD", viper.GetString("DB_PASSWORD")),
 			Name:     getEnv("PGDATABASE", viper.GetString("DB_NAME")),
-			SSLMode:  getEnv("DB_SSL_MODE", "require"), // Railway butuh SSL
+			SSLMode:  getEnv("DB_SSL_MODE", "disable"), // Railway butuh SSL
 		},
 		JWT: JWTConfig{
 			Secret:        getEnv("JWT_SECRET", viper.GetString("JWT_SECRET")),
