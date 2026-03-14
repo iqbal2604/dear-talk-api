@@ -8,14 +8,14 @@ import (
 //───Entity──────────────────────────────────────────────────────────────
 
 type User struct {
-	ID        uint
-	Username  string
-	Email     string
-	Password  string
-	Avatar    string
-	IsOnline  bool
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID        uint      `json:"id"`
+	Username  string    `json:"username"`
+	Email     string    `json:"email"`
+	Password  string    `json:"password"`
+	Avatar    string    `json:"avatar"`
+	IsOnline  bool      `json:"isonline"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 //───Repository Interface─────────────────────────────────────────────────
