@@ -129,8 +129,17 @@ func (r *roomRepository) Update(room *domain.Room) error {
 		}).Error
 }
 
-func (r *roomRepository) Delete(id uint) error {
-	return r.db.Delete(&model.RoomModel{}, id).Error
+func (r *roomRepository) Delete(roomID uint) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("room_id = ?", roomID).Delete(&model.RoomMemberModel{}).Error; err != nil {
+			return err
+		}
+		if err := tx.Delete(&model.RoomModel{}, roomID).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+	//return r.db.Delete(&model.RoomModel{}, id).Error
 }
 
 func (r *roomRepository) AddMember(member *domain.RoomMember) error {
