@@ -18,22 +18,22 @@ const (
 // ─── Enum ─────────────────────────────────────────────────────────────────────
 
 type Room struct {
-	ID        uint
-	Name      string
-	Type      RoomType
-	CreatedBy uint
-	Members   []*RoomMember
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID        uint          `json:"id"`
+	Name      string        `json:"name"`
+	Type      RoomType      `json:"type"`
+	CreatedBy uint          `json:"created_by"`
+	Members   []*RoomMember `json:"members"`
+	CreatedAt time.Time     `json:"created_at"`
+	UpdatedAt time.Time     `json:"updated_at"`
 }
 
 type RoomMember struct {
-	ID       uint
-	RoomID   uint
-	UserID   uint
-	User     *User
-	Role     MemberRole
-	JoinedAt time.Time
+	ID       uint       `json:"id"`
+	RoomID   uint       `json:"room_id"`
+	UserID   uint       `json:"user_id"`
+	User     *User      `json:"user"`
+	Role     MemberRole `json:"role"`
+	JoinedAt time.Time  `json:"joined_at"`
 }
 
 // ─── Repository Interface ─────────────────────────────────────────────────────
