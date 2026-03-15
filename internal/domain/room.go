@@ -23,8 +23,8 @@ type Room struct {
 	Type      RoomType      `json:"type"`
 	CreatedBy uint          `json:"created_by"`
 	Members   []*RoomMember `json:"members"`
-	CreatedAt time.Time     `json:"created_at"`
-	UpdatedAt time.Time     `json:"updated_at"`
+	CreatedAt time.Time     `json:"createdAt"`
+	UpdatedAt time.Time     `json:"updatedAt"`
 }
 
 type RoomMember struct {
@@ -33,7 +33,7 @@ type RoomMember struct {
 	UserID   uint       `json:"user_id"`
 	User     *User      `json:"user"`
 	Role     MemberRole `json:"role"`
-	JoinedAt time.Time  `json:"joined_at"`
+	JoinedAt time.Time  `json:"joinedAt"`
 }
 
 // ─── Repository Interface ─────────────────────────────────────────────────────

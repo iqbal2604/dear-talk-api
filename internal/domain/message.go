@@ -15,22 +15,22 @@ const (
 // ─── Entity ───────────────────────────────────────────────────────────────────
 
 type Message struct {
-	ID        uint
-	RoomID    uint
-	SenderID  uint
-	Sender    *User
-	Content   string
-	Type      MessageType
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt *time.Time
+	ID        uint        `json:"id"`
+	RoomID    uint        `json:"room_id"`
+	SenderID  uint        `json:"sender_id"`
+	Sender    *User       `json:"sender"`
+	Content   string      `json:"content"`
+	Type      MessageType `json:"type"`
+	CreatedAt time.Time   `json:"createdAt"`
+	UpdatedAt time.Time   `json:"updatedAt"`
+	DeletedAt *time.Time  `json:"deletedAt"`
 }
 
 type ReadStatus struct {
-	ID         uint
-	RoomID     uint
-	UserID     uint
-	LastReadAt time.Time
+	ID         uint      `json:"id"`
+	RoomID     uint      `json:"room_id"`
+	UserID     uint      `json:"user_id"`
+	LastReadAt time.Time `json:"lastreadAt"`
 }
 
 // ─── Repository Interface ─────────────────────────────────────────────────────

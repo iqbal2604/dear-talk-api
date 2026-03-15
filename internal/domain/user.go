@@ -14,8 +14,8 @@ type User struct {
 	Password  string    `json:"password"`
 	Avatar    string    `json:"avatar"`
 	IsOnline  bool      `json:"isonline"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 //───Repository Interface─────────────────────────────────────────────────
