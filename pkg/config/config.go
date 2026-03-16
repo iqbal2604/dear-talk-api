@@ -9,10 +9,11 @@ import (
 )
 
 type Config struct {
-	App      AppConfig
-	Database DatabaseConfig
-	JWT      JWTConfig
-	Redis    RedisConfig
+	App        AppConfig
+	Database   DatabaseConfig
+	JWT        JWTConfig
+	Redis      RedisConfig
+	Cloudinary CloudinaryConfig
 }
 
 type AppConfig struct {
@@ -41,6 +42,12 @@ type RedisConfig struct {
 	Port     string
 	Password string
 	DB       int
+}
+
+type CloudinaryConfig struct {
+	CloudName string
+	APIKey    string
+	APISecret string
 }
 
 func Load() *Config {
