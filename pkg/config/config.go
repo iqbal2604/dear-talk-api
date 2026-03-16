@@ -93,6 +93,11 @@ func Load() *Config {
 			Password: getEnv("REDIS_PASSWORD", viper.GetString("REDIS_PASSWORD")),
 			DB:       0,
 		},
+		Cloudinary: CloudinaryConfig{
+			CloudName: getEnv("CLOUDINARY_CLOUD_NAME", ""),
+			APIKey:    getEnv("CLOUDINARY_API_KEY", ""),
+			APISecret: getEnv("CLOUDINARY_API_SECRET", ""),
+		},
 	}
 }
 
