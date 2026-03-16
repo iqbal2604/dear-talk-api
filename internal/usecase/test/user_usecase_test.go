@@ -14,7 +14,7 @@ import (
 
 func TestGetProfile_Success(t *testing.T) {
 	userRepo := new(mocks.UserRepository)
-	userUsecase := usecase.NewUserManagementUsecase(userRepo)
+	userUsecase := usecase.NewUserManagementUsecase(userRepo, nil)
 
 	expectedUser := &domain.User{
 		ID:       1,
@@ -35,7 +35,7 @@ func TestGetProfile_Success(t *testing.T) {
 
 func TestGetProfile_NotFound(t *testing.T) {
 	userRepo := new(mocks.UserRepository)
-	userUsecase := usecase.NewUserManagementUsecase(userRepo)
+	userUsecase := usecase.NewUserManagementUsecase(userRepo, nil)
 
 	// Mock — user tidak ditemukan
 	userRepo.On("FindByID", uint(99)).Return(nil, nil)
@@ -52,7 +52,7 @@ func TestGetProfile_NotFound(t *testing.T) {
 
 func TestUpdateProfile_Success(t *testing.T) {
 	userRepo := new(mocks.UserRepository)
-	userUsecase := usecase.NewUserManagementUsecase(userRepo)
+	userUsecase := usecase.NewUserManagementUsecase(userRepo, nil)
 
 	existingUser := &domain.User{
 		ID:       1,
@@ -81,7 +81,7 @@ func TestUpdateProfile_Success(t *testing.T) {
 
 func TestUpdateProfile_UserNotFound(t *testing.T) {
 	userRepo := new(mocks.UserRepository)
-	userUsecase := usecase.NewUserManagementUsecase(userRepo)
+	userUsecase := usecase.NewUserManagementUsecase(userRepo, nil)
 
 	req := &domain.UpdateProfileRequest{
 		Username: "johnnew",
@@ -100,7 +100,7 @@ func TestUpdateProfile_UserNotFound(t *testing.T) {
 
 func TestUpdateProfile_UsernameTaken(t *testing.T) {
 	userRepo := new(mocks.UserRepository)
-	userUsecase := usecase.NewUserManagementUsecase(userRepo)
+	userUsecase := usecase.NewUserManagementUsecase(userRepo, nil)
 
 	existingUser := &domain.User{
 		ID:       1,
@@ -130,7 +130,7 @@ func TestUpdateProfile_UsernameTaken(t *testing.T) {
 
 func TestUpdateProfile_SameUsername(t *testing.T) {
 	userRepo := new(mocks.UserRepository)
-	userUsecase := usecase.NewUserManagementUsecase(userRepo)
+	userUsecase := usecase.NewUserManagementUsecase(userRepo, nil)
 
 	existingUser := &domain.User{
 		ID:       1,
@@ -160,7 +160,7 @@ func TestUpdateProfile_SameUsername(t *testing.T) {
 
 func TestSearchUsers_Success(t *testing.T) {
 	userRepo := new(mocks.UserRepository)
-	userUsecase := usecase.NewUserManagementUsecase(userRepo)
+	userUsecase := usecase.NewUserManagementUsecase(userRepo, nil)
 
 	expectedUsers := []*domain.User{
 		{ID: 1, Username: "johndoe", Email: "john@example.com"},
@@ -179,7 +179,7 @@ func TestSearchUsers_Success(t *testing.T) {
 
 func TestSearchUsers_EmptyQuery(t *testing.T) {
 	userRepo := new(mocks.UserRepository)
-	userUsecase := usecase.NewUserManagementUsecase(userRepo)
+	userUsecase := usecase.NewUserManagementUsecase(userRepo, nil)
 
 	users, err := userUsecase.SearchUsers("")
 
@@ -190,7 +190,7 @@ func TestSearchUsers_EmptyQuery(t *testing.T) {
 
 func TestSearchUsers_NoResults(t *testing.T) {
 	userRepo := new(mocks.UserRepository)
-	userUsecase := usecase.NewUserManagementUsecase(userRepo)
+	userUsecase := usecase.NewUserManagementUsecase(userRepo, nil)
 
 	userRepo.On("Search", "unknown").Return([]*domain.User{}, nil)
 

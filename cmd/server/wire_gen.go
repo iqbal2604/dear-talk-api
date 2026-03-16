@@ -14,6 +14,7 @@ import (
 	"github.com/iqbal2604/dear-talk-api.git/internal/repository"
 	"github.com/iqbal2604/dear-talk-api.git/internal/usecase"
 	"github.com/iqbal2604/dear-talk-api.git/internal/websocket"
+	"github.com/iqbal2604/dear-talk-api.git/pkg/cloudinary"
 	"github.com/iqbal2604/dear-talk-api.git/pkg/config"
 	"github.com/iqbal2604/dear-talk-api.git/pkg/database"
 	"github.com/iqbal2604/dear-talk-api.git/pkg/jwt"
@@ -42,7 +43,11 @@ func InitializeApp(cfg *config.Config, log *zap.Logger) (*App, error) {
 	tokenBlacklist := redis.NewTokenBlacklist(client)
 	userUsecase := usecase.NewAuthUsecase(userRepository, jwtUtil, tokenBlacklist)
 	authHandler := handler.NewAuthHandler(userUsecase)
-	userManagementUsecase := usecase.NewUserManagementUsecase(userRepository)
+	cloudinaryClient, err := provideCloudinary(cfg)
+	if err != nil {
+		return nil, err
+	}
+	userManagementUsecase := usecase.NewUserManagementUsecase(userRepository, cloudinaryClient)
 	userHandler := handler.NewUserHandler(userManagementUsecase)
 	roomRepository := repository.NewRoomRepository(db)
 	roomUsecase := usecase.NewRoomUsecase(roomRepository, userRepository)
@@ -59,7 +64,7 @@ func InitializeApp(cfg *config.Config, log *zap.Logger) (*App, error) {
 
 // wire.go:
 
-var infrastructureSet = wire.NewSet(database.NewPostgresConnection, jwt.NewJWTUtil, redis.NewRedisClient, redis.NewTokenBlacklist, wire.Bind(new(domain.TokenBlacklist), new(*redis.TokenBlacklist)))
+var infrastructureSet = wire.NewSet(database.NewPostgresConnection, jwt.NewJWTUtil, redis.NewRedisClient, redis.NewTokenBlacklist, provideCloudinary, wire.Bind(new(domain.TokenBlacklist), new(*redis.TokenBlacklist)))
 
 var repositorySet = wire.NewSet(repository.NewUserRepository, repository.NewRoomRepository, repository.NewMessageRepository)
 
@@ -102,4 +107,8 @@ func NewApp(
 		WSHandler:      wsHandler,
 		AuthMiddleware: authMiddleware,
 	}
+}
+
+func provideCloudinary(cfg *config.Config) (*cloudinarypkg.CloudinaryClient, error) {
+	return cloudinarypkg.NewCloudinaryClient(&cfg.Cloudinary)
 }

@@ -12,5 +12,6 @@ func registerUserRoutes(protected *gin.RouterGroup, userHandler *handler.UserHan
 		users.PUT("/me", userHandler.UpdateMyProfile)
 		users.GET("/search", userHandler.SearchUsers)
 		users.GET("/:id", userHandler.GetUserByID)
+		users.POST("/me/avatar", userHandler.UploadAvatar)
 	}
 }

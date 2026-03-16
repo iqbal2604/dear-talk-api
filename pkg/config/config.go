@@ -94,9 +94,9 @@ func Load() *Config {
 			DB:       0,
 		},
 		Cloudinary: CloudinaryConfig{
-			CloudName: getEnv("CLOUDINARY_CLOUD_NAME", ""),
-			APIKey:    getEnv("CLOUDINARY_API_KEY", ""),
-			APISecret: getEnv("CLOUDINARY_API_SECRET", ""),
+			CloudName: getEnv("CLOUDINARY_CLOUD_NAME", viper.GetString("CLOUDINARY_CLOUD_NAME")),
+			APIKey:    getEnv("CLOUDINARY_API_KEY", viper.GetString("CLOUDINARY_API_KEY")),
+			APISecret: getEnv("CLOUDINARY_API_SECRET", viper.GetString("CLOUDINARY_API_SECRET")),
 		},
 	}
 }

@@ -116,3 +116,9 @@ func (r *userRepository) Update(user *domain.User) error {
 	m := toUserModel(user)
 	return r.db.Save(m).Error
 }
+
+func (r *userRepository) UpdateAvatar(userID uint, avatarURL string) error {
+	return r.db.Model(&model.UserModel{}).
+		Where("id = ?", userID).
+		Update("avatar", avatarURL).Error
+}

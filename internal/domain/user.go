@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"mime/multipart"
 	"time"
 )
 
@@ -11,7 +12,7 @@ type User struct {
 	ID        uint      `json:"id"`
 	Username  string    `json:"username"`
 	Email     string    `json:"email"`
-	Password  string    `json:"password"`
+	Password  string    `json:"-"`
 	Avatar    string    `json:"avatar"`
 	IsOnline  bool      `json:"isonline"`
 	CreatedAt time.Time `json:"createdAt"`
@@ -27,6 +28,7 @@ type UserRepository interface {
 	FindByUsername(username string) (*User, error)
 	Search(query string) ([]*User, error)
 	Update(user *User) error
+	UpdateAvatar(userID uint, avatarURL string) error
 }
 
 //───Token Blacklist Interface───────────────────────────────────────────
@@ -49,6 +51,7 @@ type UserManagementUsecase interface {
 	UpdateProfile(id uint, req *UpdateProfileRequest) (*User, error)
 	SearchUsers(query string) ([]*User, error)
 	GetUserByID(id uint) (*User, error)
+	UploadAvatar(userID uint, file multipart.File, fileHeader *multipart.FileHeader) (*User, error)
 }
 
 //───Request dan Response─────────────────────────────────────────────────

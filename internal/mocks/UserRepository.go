@@ -168,6 +168,24 @@ func (_m *UserRepository) Update(user *domain.User) error {
 	return r0
 }
 
+// UpdateAvatar provides a mock function with given fields: userID, avatarURL
+func (_m *UserRepository) UpdateAvatar(userID uint, avatarURL string) error {
+	ret := _m.Called(userID, avatarURL)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateAvatar")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(uint, string) error); ok {
+		r0 = rf(userID, avatarURL)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // NewUserRepository creates a new instance of UserRepository. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewUserRepository(t interface {

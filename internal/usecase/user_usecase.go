@@ -1,18 +1,23 @@
 package usecase
 
 import (
+	"context"
 	"errors"
+	"mime/multipart"
 
 	"github.com/iqbal2604/dear-talk-api.git/internal/domain"
+	cloudinarypkg "github.com/iqbal2604/dear-talk-api.git/pkg/cloudinary"
 )
 
 type userManagementUsecase struct {
-	userRepo domain.UserRepository
+	userRepo   domain.UserRepository
+	cloudinary *cloudinarypkg.CloudinaryClient
 }
 
-func NewUserManagementUsecase(userRepo domain.UserRepository) domain.UserManagementUsecase {
+func NewUserManagementUsecase(userRepo domain.UserRepository, cloudinary *cloudinarypkg.CloudinaryClient) domain.UserManagementUsecase {
 	return &userManagementUsecase{
-		userRepo: userRepo,
+		userRepo:   userRepo,
+		cloudinary: cloudinary,
 	}
 }
 
@@ -88,4 +93,41 @@ func (u *userManagementUsecase) GetUserByID(id uint) (*domain.User, error) {
 		return nil, errors.New("user not found")
 	}
 	return user, nil
+}
+
+func (u *userManagementUsecase) UploadAvatar(
+	userID uint,
+	file multipart.File,
+	fileHeader *multipart.FileHeader,
+) (*domain.User, error) {
+	// Validasi ukuran file max 2MB
+	if fileHeader.Size > 2*1024*1024 {
+		return nil, errors.New("ukuran file maksimal 2MB")
+	}
+
+	// Validasi tipe file
+	allowedTypes := map[string]bool{
+		"image/jpeg": true,
+		"image/png":  true,
+		"image/webp": true,
+	}
+	contentType := fileHeader.Header.Get("Content-Type")
+	if !allowedTypes[contentType] {
+		return nil, errors.New("tipe file tidak didukung, gunakan JPEG/PNG/WebP")
+	}
+
+	// Upload ke Cloudinary
+	ctx := context.Background()
+	avatarURL, err := u.cloudinary.UploadAvatar(ctx, file, userID)
+	if err != nil {
+		return nil, errors.New("gagal upload avatar")
+	}
+
+	// Update database
+	if err := u.userRepo.UpdateAvatar(userID, avatarURL); err != nil {
+		return nil, errors.New("gagal menyimpan avatar")
+	}
+
+	// Return updated user
+	return u.userRepo.FindByID(userID)
 }

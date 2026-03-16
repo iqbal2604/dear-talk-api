@@ -123,3 +123,43 @@ func (h *UserHandler) GetUserByID(c *gin.Context) {
 
 	response.OK(c, "user fetched", user)
 }
+
+// UploadAvatar godoc
+// @Summary      Upload avatar
+// @Description  Upload foto profil user, max 2MB (JPEG/PNG/WebP)
+// @Tags         Users
+// @Accept       multipart/form-data
+// @Produce      json
+// @Security     BearerAuth
+// @Param        avatar  formData  file  true  "Avatar image"
+// @Success      200     {object}  response.Response{data=domain.User}
+// @Failure      400     {object}  response.Response
+// @Failure      401     {object}  response.Response
+// @Router       /users/me/avatar [post]
+func (h *UserHandler) UploadAvatar(c *gin.Context) {
+	userID := c.GetUint("user_id")
+
+	// Ambil file dari form
+	fileHeader, err := c.FormFile("avatar")
+	if err != nil {
+		response.BadRequest(c, "file avatar tidak ditemukan", nil)
+		return
+	}
+
+	// Buka file
+	file, err := fileHeader.Open()
+	if err != nil {
+		response.BadRequest(c, "gagal membaca file", nil)
+		return
+	}
+	defer file.Close()
+
+	// Upload via usecase
+	user, err := h.userUsecase.UploadAvatar(userID, file, fileHeader)
+	if err != nil {
+		response.BadRequest(c, err.Error(), nil)
+		return
+	}
+
+	response.OK(c, "avatar berhasil diupload", user)
+}

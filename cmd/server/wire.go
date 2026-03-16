@@ -11,6 +11,7 @@ import (
 	"github.com/iqbal2604/dear-talk-api.git/internal/repository"
 	"github.com/iqbal2604/dear-talk-api.git/internal/usecase"
 	"github.com/iqbal2604/dear-talk-api.git/internal/websocket"
+	cloudinarypkg "github.com/iqbal2604/dear-talk-api.git/pkg/cloudinary"
 	"github.com/iqbal2604/dear-talk-api.git/pkg/config"
 	"github.com/iqbal2604/dear-talk-api.git/pkg/database"
 	"github.com/iqbal2604/dear-talk-api.git/pkg/jwt"
@@ -28,6 +29,7 @@ var infrastructureSet = wire.NewSet(
 	jwt.NewJWTUtil,
 	redis.NewRedisClient,
 	redis.NewTokenBlacklist,
+	provideCloudinary,
 	wire.Bind(new(domain.TokenBlacklist), new(*redis.TokenBlacklist)),
 )
 
@@ -93,6 +95,10 @@ func NewApp(
 		WSHandler:      wsHandler,
 		AuthMiddleware: authMiddleware,
 	}
+}
+
+func provideCloudinary(cfg *config.Config) (*cloudinarypkg.CloudinaryClient, error) {
+	return cloudinarypkg.NewCloudinaryClient(&cfg.Cloudinary)
 }
 
 func InitializeApp(cfg *config.Config, log *zap.Logger) (*App, error) {
